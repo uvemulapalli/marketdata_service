@@ -5,14 +5,14 @@ from pymongo import MongoClient;
   
 app = Flask(__name__)
   
-@app.route('/spotPrice/<string:symbol>')
+@app.route('/spotPrice/<string:symbol>', methods=['GET'])
 def getSpotPrice(symbol):
     sym =  yf.Ticker(symbol);
     price = sym.fast_info.last_price;
     print(sym,price);
     return jsonify({'marketPrice': price})
   
-@app.route("/load")
+@app.route("/load" , methods=['POST'])
 def loadOptions():
     url = "mongodb://21af924e8e2c.mylabserver.com:8080/";
     client = MongoClient(url);
