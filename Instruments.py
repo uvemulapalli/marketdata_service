@@ -1,8 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+import requests
 import yfinance as yf;
 import pandas as pd;
 from pymongo import MongoClient;
-  
+from datetime import datetime, date
+
 app = Flask(__name__)
   
 @app.route('/spotPrice/<string:symbol>', methods=['GET'])
@@ -14,7 +16,7 @@ def getSpotPrice(symbol):
   
 @app.route("/load" , methods=['POST'])
 def loadOptions():
-    url = "mongodb://21af924e8e2c.mylabserver.com:8080/";
+    url = "mongodb://21af924e8e2c.mylabserver.com:8080/?connect=false";
     client = MongoClient(url);
     db = client["TradeData"];
     collection = db["Options"];
@@ -47,9 +49,28 @@ def loadOptions():
     count = collection.estimated_document_count();
     return jsonify({'Options Loaded': count})
         
- 
+
+@app.route('/getOption', methods=['GET'])
+def getInstrumentDetails():
+    symbol = request.args.get('ticker', None)
+    optSymbol = request.args.get('contractSymbol', None)
+    inst = yf.Ticker(symbol)
+    price = inst.fast_info.last_price;
+    
+    expiry = optSymbol[-15:-9];
+    expiry = date(2000+int(expiry[0:2]),int(expiry[2:4]),int(expiry[4:6])).strftime(('%Y-%m-%d'))
+    opt = inst.option_chain(expiry).calls
+    opt['expirationDate'] = expiry
+    opt['spotPrice'] = price
+    opt.drop(columns=['change','volume','openInterest','lastTradeDate','bid','ask','inTheMoney','percentChange','currency','contractSize'],axis=1,inplace=True);
+    opt.rename(columns = {'impliedVolatility':'volatility'}, inplace = True)
+    opt.rename(columns = {'strike':'strikePrice'}, inplace = True)
+    opt['ticker'] = symbol
+    query = "contractSymbol == '{}'".format(optSymbol)
+    x = opt.query(query).to_dict("records")
+  
+    return jsonify(x)
   
 # driver function
 if __name__ == '__main__':  
     app.run(debug = True,host='0.0.0.0',port=5000)
-
