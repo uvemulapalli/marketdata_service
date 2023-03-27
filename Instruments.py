@@ -4,11 +4,9 @@ import yfinance as yf;
 import pandas as pd;
 from pymongo import MongoClient;
 from datetime import datetime, date;
-from flask_cors import CORS, cross_origin
+from flask_cors import cross_origin
 
 app = Flask(__name__)
-CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
   
 @app.route('/spotPrice/<string:symbol>', methods=['GET'])
 @cross_origin()
