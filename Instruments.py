@@ -4,12 +4,14 @@ import yfinance as yf;
 import pandas as pd;
 from pymongo import MongoClient;
 from datetime import datetime, date;
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
   
 @app.route('/spotPrice/<string:symbol>', methods=['GET'])
+@cross_origin()
 def getSpotPrice(symbol):
     sym =  yf.Ticker(symbol);
     price = sym.fast_info.last_price;
@@ -17,6 +19,7 @@ def getSpotPrice(symbol):
     return jsonify({'marketPrice': price})
   
 @app.route("/load" , methods=['POST'])
+@cross_origin()
 def loadOptions():
     url = "mongodb://21af924e8e2c.mylabserver.com:8080/?connect=false";
     client = MongoClient(url);
@@ -53,6 +56,7 @@ def loadOptions():
         
 
 @app.route('/getOption', methods=['GET'])
+@cross_origin()
 def getInstrumentDetails():
     symbol = request.args.get('ticker', None)
     optSymbol = request.args.get('contractSymbol', None)
