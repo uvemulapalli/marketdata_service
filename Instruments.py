@@ -30,7 +30,7 @@ def loadOptions():
 
     for symbol in symlist:
         tk = yf.Ticker(symbol);
-        exps = tk.options[2:6];
+        exps = tk.options[2:3];
                        
         for e in exps:
             print(symbol,e)
