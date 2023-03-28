@@ -25,7 +25,8 @@ def loadOptions():
     collection = db["Options"];
     db.Options.delete_many({});
         
-    symlist = ['AAPL','AMZN','TSLA','MSFT','CSCO','META','V','PG','BAC','GOOGL'];
+    #symlist = ['AAPL','AMZN','TSLA','MSFT','CSCO','META','V','PG','BAC','GOOGL'];
+    symlist = ['AAPL','AMZN','TSLA'];
     options = pd.DataFrame();
 
     for symbol in symlist:
